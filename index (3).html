@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Maths Practice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bronze: #CD7F32;
+            --bronze-light: #E8C496;
+            --silver: #C0C0C0;
+            --silver-light: #E8E8E8;
+            --gold: #FFD700;
+            --gold-light: #FFF4B8;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .date-nav button {
+            background: var(--card-bg);
+            border: 2px solid #e2e8f0;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-nav button:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .date-nav button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .current-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            min-width: 200px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: var(--bronze);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            background: #fee2e2;
+            border-radius: 1rem;
+            color: #991b1b;
+        }
+
+        .setup-instructions {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .setup-instructions h2 {
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .setup-instructions ol {
+            margin-left: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .setup-instructions code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+        .setup-instructions input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .setup-instructions button {
+            background: var(--bronze);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .no-questions {
+            text-align: center;
+            padding: 3rem;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .no-questions h2 {
+            color: var(--text-light);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-questions p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .level-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .level-tab {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .level-tab.bronze {
+            background: var(--bronze-light);
+            color: #8B4513;
+        }
+        .level-tab.bronze.active, .level-tab.bronze:hover {
+            background: var(--bronze);
+            color: white;
+        }
+
+        .level-tab.silver {
+            background: var(--silver-light);
+            color: #4a4a4a;
+        }
+        .level-tab.silver.active, .level-tab.silver:hover {
+            background: var(--silver);
+            color: #1a1a1a;
+        }
+
+        .level-tab.gold {
+            background: var(--gold-light);
+            color: #8B6914;
+        }
+        .level-tab.gold.active, .level-tab.gold:hover {
+            background: var(--gold);
+            color: #5c4a0f;
+        }
+
+        .questions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--bronze);
+        }
+
+        .question-card.silver { border-left-color: var(--silver); }
+        .question-card.gold { border-left-color: var(--gold); }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-light);
+            background: #f1f5f9;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .question-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn:hover {
+            background: #f8fafc;
+        }
+
+        .toggle-btn.hint-btn { border-color: #fbbf24; }
+        .toggle-btn.hint-btn:hover, .toggle-btn.hint-btn.active { 
+            background: #fef3c7; 
+        }
+
+        .toggle-btn.answer-btn { border-color: #34d399; }
+        .toggle-btn.answer-btn:hover, .toggle-btn.answer-btn.active { 
+            background: #d1fae5; 
+        }
+
+        .hint-box, .answer-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            display: none;
+            white-space: pre-wrap;
+        }
+
+        .hint-box.visible, .answer-box.visible {
+            display: block;
+        }
+
+        .hint-box {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+        }
+
+        .answer-box {
+            background: #d1fae5;
+            border: 1px solid #34d399;
+        }
+
+        .hint-label, .answer-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .hint-label { color: #92400e; }
+        .answer-label { color: #065f46; }
+
+        .refresh-note {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
+            .question-card { padding: 1rem; }
+            .level-tab { padding: 0.6rem 1rem; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📐 Daily Maths Practice</h1>
+            <div class="date-nav">
+                <button id="prev-day" title="Previous day">◀</button>
+                <span class="current-date" id="current-date"></span>
+                <button id="next-day" title="Next day">▶</button>
+            </div>
+        </header>
+
+        <main id="main-content">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading questions...</p>
+            </div>
+        </main>
+
+        <p class="refresh-note">Questions update automatically from the teacher's spreadsheet</p>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURATION - UPDATE THIS WITH YOUR GOOGLE SHEET ID
+        // ============================================================
+        // To find your Sheet ID, look at your Google Sheet URL:
+        // https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID_IS_HERE/edit
+        // Copy the long string of letters and numbers and paste it below:
+        
+        const GOOGLE_SHEET_ID = '1OvL9xrAi4eTxll-Xnfy-6U-7utBf-bfaU24IAwxMEhQ';
+        
+        // Sheet name (tab name) - default is 'Sheet1', change if different
+        const SHEET_NAME = 'Sheet1';
+        
+        // ============================================================
+        // END CONFIGURATION
+        // ============================================================
+
+        // All questions data (loaded from sheet)
+        let allQuestions = [];
+        
+        // Current viewing date
+        let currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        
+        // Today's date for comparison
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Currently selected level
+        let currentLevel = 'bronze';
+
+        // Available dates (dates that have questions)
+        let availableDates = new Set();
+
+        // Format date for display
+        function formatDate(date) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            return date.toLocaleDateString('en-GB', options);
+        }
+
+        // Format date for comparison (YYYY-MM-DD)
+        function getDateKey(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // Parse date from various formats
+        function parseDate(dateStr) {
+            if (!dateStr) return null;
+            
+            // Try different formats
+            // Format: DD/MM/YYYY
+            let match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+            if (match) {
+                return new Date(match[3], match[2] - 1, match[1]);
+            }
+            
+            // Format: YYYY-MM-DD
+            match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (match) {
+                return new Date(match[1], match[2] - 1, match[3]);
+            }
+            
+            // Format: DD-MM-YYYY
+            match = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+            if (match) {
+                return new Date(match[3], match[2] - 1, match[1]);
+            }
+            
+            // Try native parsing as fallback
+            const parsed = new Date(dateStr);
+            if (!isNaN(parsed)) return parsed;
+            
+            return null;
+        }
+
+        // Normalise level string
+        function normaliseLevel(level) {
+            if (!level) return null;
+            const l = level.toString().toLowerCase().trim();
+            if (l.includes('bronze') || l === '1') return 'bronze';
+            if (l.includes('silver') || l === '2') return 'silver';
+            if (l.includes('gold') || l === '3') return 'gold';
+            return null;
+        }
+
+        // Fetch and parse Google Sheet data
+        async function fetchQuestions() {
+            if (GOOGLE_SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+                showSetupInstructions();
+                return;
+            }
+
+            // Try CSV export first (works better with school accounts)
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+            
+            try {
+                const response = await fetch(csvUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Make sure the sheet is shared as "Anyone with the link"`);
+                }
+                
+                const text = await response.text();
+                
+                if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+                    throw new Error('Sheet not accessible. Please check sharing settings: Share → Anyone with the link');
+                }
+                
+                // Parse CSV
+                const rows = parseCSV(text);
+                
+                if (rows.length < 2) {
+                    throw new Error('Sheet appears empty or has no data rows');
+                }
+
+                // Find column indices from header row
+                const headers = rows[0].map(h => h.toLowerCase().trim());
+                const dateCol = headers.findIndex(h => h.includes('date'));
+                const levelCol = headers.findIndex(h => h.includes('level'));
+                const questionCol = headers.findIndex(h => h.includes('question'));
+                const answerCol = headers.findIndex(h => h.includes('answer'));
+                const hintCol = headers.findIndex(h => h.includes('hint'));
+                const imageCol = headers.findIndex(h => h.includes('image'));
+
+                if (dateCol === -1 || questionCol === -1) {
+                    throw new Error('Could not find Date and Question columns. Check header row.');
+                }
+
+                // Parse questions
+                allQuestions = [];
+                availableDates = new Set();
+
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (!row || row.length === 0) continue;
+
+                    const dateVal = row[dateCol];
+                    const date = parseDate(dateVal);
+                    const level = normaliseLevel(row[levelCol]);
+                    const question = row[questionCol];
+                    const answer = answerCol >= 0 ? row[answerCol] : '';
+                    const hint = hintCol >= 0 ? row[hintCol] : '';
+                    const image = imageCol >= 0 ? row[imageCol] : '';
+
+                    if (date && level && question && question.trim()) {
+                        const dateKey = getDateKey(date);
+                        allQuestions.push({
+                            date: dateKey,
+                            level,
+                            question: question.toString().trim(),
+                            answer: (answer || '').toString().trim(),
+                            hint: (hint || '').toString().trim(),
+                            image: (image || '').toString().trim()
+                        });
+                        availableDates.add(dateKey);
+                    }
+                }
+
+                if (allQuestions.length === 0) {
+                    throw new Error('No valid questions found. Make sure each row has Date, Level, and Question filled in.');
+                }
+
+                // Find most recent date with questions (up to today)
+                const sortedDates = Array.from(availableDates).sort().reverse();
+                const todayKey = getDateKey(today);
+                const recentDate = sortedDates.find(d => d <= todayKey) || sortedDates[0];
+                
+                if (recentDate) {
+                    currentDate = new Date(recentDate + 'T00:00:00');
+                }
+
+                render();
+
+            } catch (error) {
+                console.error('Error fetching questions:', error);
+                showError(error.message);
+            }
+        }
+        
+        // Parse CSV text into rows
+        function parseCSV(text) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
+            let insideQuotes = false;
+            
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+                
+                if (insideQuotes) {
+                    if (char === '"' && nextChar === '"') {
+                        currentCell += '"';
+                        i++; // Skip next quote
+                    } else if (char === '"') {
+                        insideQuotes = false;
+                    } else {
+                        currentCell += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        insideQuotes = true;
+                    } else if (char === ',') {
+                        currentRow.push(currentCell);
+                        currentCell = '';
+                    } else if (char === '\n' || (char === '\r' && nextChar === '\n')) {
+                        currentRow.push(currentCell);
+                        rows.push(currentRow);
+                        currentRow = [];
+                        currentCell = '';
+                        if (char === '\r') i++; // Skip \n after \r
+                    } else if (char !== '\r') {
+                        currentCell += char;
+                    }
+                }
+            }
+            
+            // Don't forget last cell/row
+            if (currentCell || currentRow.length > 0) {
+                currentRow.push(currentCell);
+                rows.push(currentRow);
+            }
+            
+            return rows;
+        }
+
+        // Get questions for a specific date and level
+        function getQuestions(dateKey, level) {
+            return allQuestions.filter(q => q.date === dateKey && q.level === level);
+        }
+
+        // Update navigation buttons
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prev-day');
+            const nextBtn = document.getElementById('next-day');
+            
+            prevBtn.disabled = false;
+            
+            const currentDateStr = getDateKey(currentDate);
+            const todayStr = getDateKey(today);
+            nextBtn.disabled = currentDateStr >= todayStr;
+            
+            document.getElementById('current-date').textContent = formatDate(currentDate);
+        }
+
+        // Render the main content
+        function render() {
+            updateNavigation();
+            
+            const dateKey = getDateKey(currentDate);
+            const questions = getQuestions(dateKey, currentLevel);
+            const main = document.getElementById('main-content');
+            
+            const hasAnyQuestionsForDate = allQuestions.some(q => q.date === dateKey);
+            
+            if (!hasAnyQuestionsForDate) {
+                main.innerHTML = `
+                    <div class="no-questions">
+                        <h2>No questions for this day</h2>
+                        <p>Try going back to a previous day, or check back later.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            main.innerHTML = `
+                <div class="level-tabs">
+                    <button class="level-tab bronze ${currentLevel === 'bronze' ? 'active' : ''}" data-level="bronze">
+                        🥉 Bronze
+                    </button>
+                    <button class="level-tab silver ${currentLevel === 'silver' ? 'active' : ''}" data-level="silver">
+                        🥈 Silver
+                    </button>
+                    <button class="level-tab gold ${currentLevel === 'gold' ? 'active' : ''}" data-level="gold">
+                        🥇 Gold
+                    </button>
+                </div>
+                <div class="questions-container">
+                    ${questions.length === 0 ? `
+                        <div class="no-questions">
+                            <h2>No ${currentLevel} questions yet</h2>
+                            <p>Try another level or check back later.</p>
+                        </div>
+                    ` : questions.map((q, i) => `
+                        <div class="question-card ${currentLevel}">
+                            <div class="question-header">
+                                <span class="question-number">Question ${i + 1}</span>
+                            </div>
+                            <div class="question-text">${escapeHtml(q.question)}</div>
+                            ${q.image ? `<img src="${escapeHtml(q.image)}" alt="Question diagram" class="question-image" onerror="this.style.display='none'">` : ''}
+                            <div class="toggle-buttons">
+                                ${q.hint ? `<button class="toggle-btn hint-btn" data-index="${i}">💡 Show Hint</button>` : ''}
+                                <button class="toggle-btn answer-btn" data-index="${i}">✓ Show Answer</button>
+                            </div>
+                            ${q.hint ? `
+                                <div class="hint-box" id="hint-${i}">
+                                    <span class="hint-label">💡 Hint</span>
+                                    ${escapeHtml(q.hint)}
+                                </div>
+                            ` : ''}
+                            <div class="answer-box" id="answer-${i}">
+                                <span class="answer-label">✓ Answer</span>
+                                ${escapeHtml(q.answer)}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Add event listeners for level tabs
+            document.querySelectorAll('.level-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    currentLevel = tab.dataset.level;
+                    render();
+                });
+            });
+
+            // Add event listeners for hint/answer toggles
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = btn.dataset.index;
+                    const isHint = btn.classList.contains('hint-btn');
+                    const boxId = isHint ? `hint-${index}` : `answer-${index}`;
+                    const box = document.getElementById(boxId);
+                    
+                    btn.classList.toggle('active');
+                    box.classList.toggle('visible');
+                    
+                    btn.textContent = btn.classList.contains('active') 
+                        ? (isHint ? '💡 Hide Hint' : '✓ Hide Answer')
+                        : (isHint ? '💡 Show Hint' : '✓ Show Answer');
+                });
+            });
+        }
+
+        // Show setup instructions
+        function showSetupInstructions() {
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="setup-instructions">
+                    <h2>🔧 Setup Required</h2>
+                    <p>To connect this page to your Google Sheet:</p>
+                    <ol>
+                        <li>Open your Google Sheet with questions</li>
+                        <li>Make sure it has columns: <code>Date</code>, <code>Level</code>, <code>Question</code>, <code>Answer</code>, <code>Hint</code>, <code>Image URL</code></li>
+                        <li>Click <strong>File → Share → Publish to web</strong></li>
+                        <li>Select "Entire Document" and "Web page", then click Publish</li>
+                        <li>Copy your Sheet ID from the URL (the long string between /d/ and /edit)</li>
+                        <li>Edit this HTML file and replace <code>YOUR_SHEET_ID_HERE</code> with your Sheet ID</li>
+                    </ol>
+                    <p style="margin-top: 1rem; color: var(--text-light);">
+                        Example Sheet URL: https://docs.google.com/spreadsheets/d/<strong>1ABC123xyz...</strong>/edit<br>
+                        The bold part is your Sheet ID.
+                    </p>
+                </div>
+            `;
+        }
+
+        // Show error message
+        function showError(message) {
+            const main = document.getElementById('main-content');
+            main.innerHTML = `
+                <div class="error-message">
+                    <h2>⚠️ Error Loading Questions</h2>
+                    <p>${escapeHtml(message)}</p>
+                    <p style="margin-top: 1rem;">Make sure your Google Sheet is published to the web and the Sheet ID is correct.</p>
+                </div>
+            `;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Navigation handlers
+        document.getElementById('prev-day').addEventListener('click', () => {
+            currentDate.setDate(currentDate.getDate() - 1);
+            render();
+        });
+
+        document.getElementById('next-day').addEventListener('click', () => {
+            const currentDateStr = getDateKey(currentDate);
+            const todayStr = getDateKey(today);
+            
+            if (currentDateStr < todayStr) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                render();
+            }
+        });
+
+        // Initial load
+        fetchQuestions();
+    </script>
+</body>
+</html>
